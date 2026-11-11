@@ -1,0 +1,21 @@
+
+backend:
+  name: github
+  repo: alexrodriguesp/webpage # Nome exato do seu repositório
+  branch: main # Ou master (confira qual é o nome da sua branch principal no GitHub)
+
+media_folder: "uploads"
+public_folder: "/webpage/uploads" # Aponta para a pasta correta dentro do projeto
+
+collections:
+  - name: "posts"
+    label: "Posts do Blog"
+    folder: "_posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Layout", name: "layout", widget: "hidden", default: "post" }
+      - { label: "Título do Post", name: "title", widget: "string" }
+      - { label: "Data de Publicação", name: "date", widget: "datetime" }
+      - { label: "Imagem de Capa", name: "image", widget: "image", required: false }
+      - { label: "Conteúdo", name: "body", widget: "markdown" }
