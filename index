@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Título da Página</title>
+</head>
+<body>
+    <h1>Título Principal</h1>
+    <p>Este é um parágrafo de exemplo.</p>
+    <a href="https://exemplo.com">Link para exemplo</a>
+</body>
+</html>   
