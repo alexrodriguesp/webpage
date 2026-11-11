@@ -1,11 +1,13 @@
-
 backend:
   name: github
-  repo: alexrodriguesp/webpage # Nome exato do seu repositório
-  branch: main # Ou master (confira qual é o nome da sua branch principal no GitHub)
+  repo: alexrodriguesp/webpage
+  branch: main  # Altera para master se a tua branch principal for master
+  base_url: https://gh-bearer.net
+  auth_endpoint: auth
+  client_id: TEU_CLIENT_ID_AQUI  # Cola aqui o Client ID gerado no GitHub OAuth
 
 media_folder: "uploads"
-public_folder: "/webpage/uploads" # Aponta para a pasta correta dentro do projeto
+public_folder: "/webpage/uploads"
 
 collections:
   - name: "posts"
