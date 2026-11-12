@@ -1,59 +1,230 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Título da Página</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Blog</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1e1e2e;
+      color: #cdd6f4;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 40px;
+      color: #f5f5f5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #2a2a3e;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid #3b3b50;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card .no-img {
+      width: 100%;
+      height: 180px;
+      background: #3b3b50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6c7086;
+      font-size: 2.5rem;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .card-body h2 {
+      font-size: 1.2rem;
+      color: #f5f5f5;
+      margin-bottom: 8px;
+    }
+
+    .card-body p {
+      font-size: 0.9rem;
+      color: #a6adc8;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .card-body .read-more {
+      font-size: 0.85rem;
+      color: #89b4fa;
+      font-weight: 600;
+    }
+
+    /* Modal para ler o post completo */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-content {
+      background: #2a2a3e;
+      border-radius: 12px;
+      max-width: 700px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 32px;
+      border: 1px solid #3b3b50;
+    }
+
+    .modal-content h2 {
+      color: #f5f5f5;
+      margin-bottom: 12px;
+    }
+
+    .modal-content img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .modal-content .desc {
+      color: #a6adc8;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .modal-content .body-text {
+      line-height: 1.7;
+      color: #cdd6f4;
+    }
+
+    .close-btn {
+      float: right;
+      background: none;
+      border: none;
+      color: #a6adc8;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .close-btn:hover { color: #f5f5f5; }
+  </style>
 </head>
 <body>
-    <div id="posts"></div>
+
+<h1>Meu Blog</h1>
+<div class="grid" id="posts"></div>
+
+<div class="modal" id="modal">
+  <div class="modal-content" id="modal-content"></div>
+</div>
 
 <script>
-async function carregarPosts() {
-  const resp = await fetch('_posts/');
-  // GitHub Pages não permite listagem de pasta,
-  // então use um arquivo _posts/index.json (gerado via Pages CMS)
-  // OU use a API do GitHub:
-}
-
-// Alternativa simples: use a API do GitHub
+const BASE = '/webpage'; // ⬅️ seu nome do repo
 const repo = 'alexrodriguesp/webpage';
-const token = ''; // opcional, sem token funciona para repo público
 
 async function carregarPosts() {
   const resp = await fetch(`https://api.github.com/repos/${repo}/contents/_posts`);
   const files = await resp.json();
-
   const container = document.getElementById('posts');
   container.innerHTML = '';
 
   for (const file of files) {
-    if (file.name.endsWith('.md')) {
-      const content = await (await fetch(file.download_url)).text();
+    if (!file.name.endsWith('.md')) continue;
 
-      // Extrai front matter
-      const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-      if (!match) continue;
+    const content = await (await fetch(file.download_url)).text();
+    const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    if (!match) continue;
 
-      const front = match[1];
-      const body = match[2];
+    const front = match[1];
+    const body = match[2];
 
-      const titulo = (front.match(/title:\s*(.+)/) || [])[1] || '';
-      const desc = (front.match(/description:\s*(.+)/) || [])[1] || '';
-      const img = (front.match(/image:\s*(.+)/) || [])[1] || '';
+    const titulo = (front.match(/title:\s*(.+)/) || [])[1]?.trim() || '';
+    const desc = (front.match(/description:\s*(.+)/) || [])[1]?.trim() || '';
+    let img = (front.match(/image:\s*(.+)/) || [])[1]?.trim() || '';
 
-      container.innerHTML += `
-        <article style="margin:20px 0; padding:20px; border:1px solid #ddd; border-radius:8px;">
-          ${img ? `<img src="${img}" style="max-width:100%; border-radius:8px; margin-bottom:12px;">` : ''}
-          <h2>${titulo}</h2>
-          ${desc ? `<p style="color:#666;">${desc}</p>` : ''}
-          <div>${body}</div>
-        </article>
-      `;
+    // Corrige o caminho da imagem
+    if (img && !img.startsWith('http')) {
+      img = BASE + '/' + img.replace(/^\//, '');
     }
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      ${img
+        ? `<img src="${img}" alt="${titulo}" onerror="this.outerHTML='<div class=no-img>📷</div>'">`
+        : `<div class="no-img">📷</div>`
+      }
+      <div class="card-body">
+        <h2>${titulo}</h2>
+        <p>${desc || 'Clique para ler mais...'}</p>
+        <span class="read-more">Ler mais →</span>
+      </div>
+    `;
+
+    card.onclick = () => abrirModal(titulo, desc, img, body);
+    container.appendChild(card);
   }
 }
 
+function abrirModal(titulo, desc, img, body) {
+  const modal = document.getElementById('modal');
+  const content = document.getElementById('modal-content');
+  content.innerHTML = `
+    <button class="close-btn" onclick="fecharModal()">✕</button>
+    ${img ? `<img src="${img}" alt="${titulo}">` : ''}
+    <h2>${titulo}</h2>
+    ${desc ? `<p class="desc">${desc}</p>` : ''}
+    <div class="body-text">${body}</div>
+  `;
+  modal.classList.add('active');
+}
+
+function fecharModal() {
+  document.getElementById('modal').classList.remove('active');
+}
+
+document.getElementById('modal').onclick = (e) => {
+  if (e.target === e.currentTarget) fecharModal();
+};
+
 carregarPosts();
-</script>   
+</script>
+
 </body>
 </html>   
