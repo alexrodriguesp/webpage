@@ -1,0 +1,21 @@
+content:
+  - name: posts
+    label: Posts
+    path: _posts
+    fields:
+      -  name: description
+         label: Descrição
+         type: textarea
+      - name: description
+        label: Descrição
+        type: textarea
+      - name: image
+        label: Imagem
+        type: image
+      - name: body
+        label: Conteúdo
+        type: markdown
+
+media:
+  path: uploads
+  label: Imagens   
