@@ -3,9 +3,9 @@ content:
     label: Posts
     path: _posts
     fields:
-      -  name: description
-         label: Descrição
-         type: textarea
+      - name: description
+        label: Descrição
+        type: textarea
       - name: description
         label: Descrição
         type: textarea
