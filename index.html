@@ -181,16 +181,16 @@ async function carregarPosts() {
       const front = match[1];
       const body = match[2];
 
-      // Função auxiliar para extrair campos do frontmatter ignorando aspas extras e espaços
       const getField = (field) => {
         const regex = new RegExp(`^${field}:\\s*(['"]?)(.*?)\\1\\s*$`, 'm');
         const res = front.match(regex);
-        return res ? res[2].trim().replace(/^["']|["']$/g, '') : '';
+        return res ? res[2].trim() : '';
       };
 
-      const titulo = getField('title');
-      const desc = getField('description');
-      let img = getField('image');
+      // Limpeza agressiva para remover aspas sobrando, espaços ou traços que venham corrompidos
+      let titulo = getField('title').replace(/["']+$/, '').trim();
+      let desc = getField('description').replace(/["']+$/, '').trim();
+      let img = getField('image').replace(/["']+$/, '').trim();
 
       // Tratamento do caminho da imagem para o GitHub Pages
       if (img) {
