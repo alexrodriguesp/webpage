@@ -181,18 +181,23 @@ async function carregarPosts() {
       const front = match[1];
       const body = match[2];
 
-      // Regex robustas para capturar corretamente campos do Frontmatter gerados pelo PagesCMS
-      const tituloMatch = front.match(/^title:\s*(['"]?)(.*?)\1\s*$/m);
-      const descMatch = front.match(/^description:\s*(['"]?)(.*?)\1\s*$/m);
-      const imgMatch = front.match(/^image:\s*(['"]?)(.*?)\1\s*$/m);
+      // Função auxiliar para extrair campos do frontmatter ignorando aspas extras e espaços
+      const getField = (field) => {
+        const regex = new RegExp(`^${field}:\\s*(['"]?)(.*?)\\1\\s*$`, 'm');
+        const res = front.match(regex);
+        return res ? res[2].trim().replace(/^["']|["']$/g, '') : '';
+      };
 
-      const titulo = tituloMatch ? tituloMatch[2].trim() : '';
-      const desc = descMatch ? descMatch[2].trim() : '';
-      let img = imgMatch ? imgMatch[2].trim() : '';  
+      const titulo = getField('title');
+      const desc = getField('description');
+      let img = getField('image');
 
-      // Corrige o caminho da imagem para o GitHub Pages
-      if (img && !img.startsWith('http')) {
-        img = BASE + '/' + img.replace(/^\//, '');
+      // Tratamento do caminho da imagem para o GitHub Pages
+      if (img) {
+        if (!img.startsWith('http')) {
+          const cleanImgPath = img.replace(/^\/+/, '');
+          img = `${BASE}/${cleanImgPath}`;
+        }
       }
 
       const card = document.createElement('div');
