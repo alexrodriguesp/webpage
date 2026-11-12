@@ -157,6 +157,7 @@
 <script>
 const BASE = '/webpage'; // ⬅️ seu nome do repo
 const repo = 'alexrodriguesp/webpage';
+const token = 'ghp_SUA_CHAVE_AQUI'; // ← cole seu PAT aqui
 
 async function carregarPosts() {
   const resp = await fetch(`https://api.github.com/repos/${repo}/contents/_posts`);
