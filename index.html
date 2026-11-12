@@ -1,11 +1,49 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Título da Página</title>
-</head>
-<body>
-    <h1>Título Principal</h1>
-    <p>Este é um parágrafo de exemplo.</p>
-</body>
-</html>   
+<div id="posts"></div>
+
+<script>
+async function carregarPosts() {
+  const resp = await fetch('_posts/');
+  // GitHub Pages não permite listagem de pasta,
+  // então use um arquivo _posts/index.json (gerado via Pages CMS)
+  // OU use a API do GitHub:
+}
+
+// Alternativa simples: use a API do GitHub
+const repo = 'alexrodriguesp/webpage';
+const token = ''; // opcional, sem token funciona para repo público
+
+async function carregarPosts() {
+  const resp = await fetch(`https://api.github.com/repos/${repo}/contents/_posts`);
+  const files = await resp.json();
+
+  const container = document.getElementById('posts');
+  container.innerHTML = '';
+
+  for (const file of files) {
+    if (file.name.endsWith('.md')) {
+      const content = await (await fetch(file.download_url)).text();
+
+      // Extrai front matter
+      const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+      if (!match) continue;
+
+      const front = match[1];
+      const body = match[2];
+
+      const titulo = (front.match(/title:\s*(.+)/) || [])[1] || '';
+      const desc = (front.match(/description:\s*(.+)/) || [])[1] || '';
+      const img = (front.match(/image:\s*(.+)/) || [])[1] || '';
+
+      container.innerHTML += `
+        <article style="margin:20px 0; padding:20px; border:1px solid #ddd; border-radius:8px;">
+          ${img ? `<img src="${img}" style="max-width:100%; border-radius:8px; margin-bottom:12px;">` : ''}
+          <h2>${titulo}</h2>
+          ${desc ? `<p style="color:#666;">${desc}</p>` : ''}
+          <div>${body}</div>
+        </article>
+      `;
+    }
+  }
+}
+
+carregarP   
