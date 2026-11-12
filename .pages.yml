@@ -1,21 +1,22 @@
+media:
+  input: uploads
+  output: /uploads
+
 content:
   - name: posts
     label: Posts
+    type: collection
     path: _posts
     fields:
+      - name: title
+        label: Título
+        type: string
       - name: description
         label: Descrição
-        type: textarea
-      - name: description
-        label: Descrição
-        type: textarea
+        type: text
       - name: image
         label: Imagem
         type: image
       - name: body
         label: Conteúdo
-        type: markdown
-
-media:
-  path: uploads
-  label: Imagens   
+        type: rich-text   
