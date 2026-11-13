@@ -1,7 +1,4 @@
 ---
 title: "Primeira Postagem "
-description: |-
-  Essa é a primeira Postagem !!!
-
-  ºº
+description: Essa é a primeira Postagem !!!
 ---
