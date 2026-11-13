@@ -19,4 +19,4 @@ content:
         type: image
       - name: body
         label: Conteúdo
-        type: rich-text   
+        type: markdown
