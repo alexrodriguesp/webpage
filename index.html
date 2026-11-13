@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meu Blog</title>
+  
+  <!-- Importando a biblioteca js-yaml para ler perfeitamente o formato do PagesCMS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -178,31 +182,22 @@ async function carregarPosts() {
       const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
       if (!match) continue;
 
-      const front = match[1];
+      const frontYaml = match[1];
       const body = match[2];
 
-      // Função segura para extrair valores do YAML ignorando aspas, blocos |- ou espaços
-      const getField = (field) => {
-        const regex = new RegExp(`^${field}:\\s*([|-]?)\\s*(['"]?)(.*?)\\2\\s*$`, 'm');
-        // Tentativa primária com aspas/blocos
-        const res = front.match(new RegExp(`^${field}:\\s*(['"]?)(.*?)\\1\\s*$`, 'm'));
-        if (res && res[2]) {
-          return res[2].replace(/^["']|["']$/g, '').trim();
-        }
-        // Tentativa secundária para blocos de texto multilinha do YAML (como |- ou |)
-        const blockRegex = new RegExp(`^${field}:\\s*[|>-]?\\s*\n((?:[ \t]+.*(?:\n|$))+)`, 'm');
-        const blockRes = front.match(blockRegex);
-        if (blockRes && blockRes[1]) {
-          return blockRes[1].split('\n').map(l => l.trim()).join(' ');
-        }
-        return '';
-      };
+      // Usando a biblioteca js-yaml para interpretar o cabeçalho de forma profissional
+      let data = {};
+      try {
+        data = jsyaml.load(frontYaml) || {};
+      } catch (e) {
+        console.error('Erro ao ler YAML do post:', file.name, e);
+      }
 
-      const titulo = getField('title').replace(/["']+$/, '');
-      const desc = getField('description').replace(/["']+$/, '');
-      let img = getField('image').replace(/["']+$/, '');
+      const titulo = data.title || '';
+      const desc = data.description || '';
+      let img = data.image || '';
 
-      // Tratamento limpo do caminho da imagem
+      // Tratamento do caminho da imagem para o GitHub Pages
       if (img) {
         if (!img.startsWith('http')) {
           const cleanImgPath = img.replace(/^\/+/, '');
