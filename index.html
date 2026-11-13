@@ -131,6 +131,7 @@
     .modal-content .body-text {
       line-height: 1.7;
       color: #cdd6f4;
+      white-space: pre-line;
     }
 
     .close-btn {
@@ -158,7 +159,6 @@
 const BASE = '/webpage'; // Nome do seu repositório
 const repo = 'alexrodriguesp/webpage';
 
-
 async function carregarPosts() {
   try {
     const resp = await fetch(`https://api.github.com/repos/${repo}/contents/_posts`);
@@ -181,18 +181,28 @@ async function carregarPosts() {
       const front = match[1];
       const body = match[2];
 
+      // Função segura para extrair valores do YAML ignorando aspas, blocos |- ou espaços
       const getField = (field) => {
-        const regex = new RegExp(`^${field}:\\s*(['"]?)(.*?)\\1\\s*$`, 'm');
-        const res = front.match(regex);
-        return res ? res[2].trim() : '';
+        const regex = new RegExp(`^${field}:\\s*([|-]?)\\s*(['"]?)(.*?)\\2\\s*$`, 'm');
+        // Tentativa primária com aspas/blocos
+        const res = front.match(new RegExp(`^${field}:\\s*(['"]?)(.*?)\\1\\s*$`, 'm'));
+        if (res && res[2]) {
+          return res[2].replace(/^["']|["']$/g, '').trim();
+        }
+        // Tentativa secundária para blocos de texto multilinha do YAML (como |- ou |)
+        const blockRegex = new RegExp(`^${field}:\\s*[|>-]?\\s*\n((?:[ \t]+.*(?:\n|$))+)`, 'm');
+        const blockRes = front.match(blockRegex);
+        if (blockRes && blockRes[1]) {
+          return blockRes[1].split('\n').map(l => l.trim()).join(' ');
+        }
+        return '';
       };
 
-      // Limpeza agressiva para remover aspas sobrando, espaços ou traços que venham corrompidos
-      let titulo = getField('title').replace(/["']+$/, '').trim();
-      let desc = getField('description').replace(/["']+$/, '').trim();
-      let img = getField('image').replace(/["']+$/, '').trim();
+      const titulo = getField('title').replace(/["']+$/, '');
+      const desc = getField('description').replace(/["']+$/, '');
+      let img = getField('image').replace(/["']+$/, '');
 
-      // Tratamento do caminho da imagem para o GitHub Pages
+      // Tratamento limpo do caminho da imagem
       if (img) {
         if (!img.startsWith('http')) {
           const cleanImgPath = img.replace(/^\/+/, '');
