@@ -1,257 +1,88 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meu Blog</title>
-  
-  <!-- Importando a biblioteca js-yaml para ler perfeitamente o formato do PagesCMS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  <meta name="description" content="Blog técnico sobre Linux, infraestrutura, administração de sistemas e tecnologia.">
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #1e1e2e;
-      color: #cdd6f4;
-      min-height: 100vh;
-      padding: 40px 20px;
-    }
+  <title>Meu Blog Linux</title>
 
-    h1 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 40px;
-      color: #f5f5f5;
-    }
+  <!-- Ícone da página -->
+  <link rel="icon" href="assets/favicon.ico">
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 24px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="assets/css/style.css">
 
-    .card {
-      background: #2a2a3e;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      border: 1px solid #3b3b50;
-    }
+  <!-- Highlight.js: cores dos códigos -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"
+  >
 
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    }
+  <!-- Bibliotecas externas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js" defer></script>
 
-    .card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      display: block;
-    }
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
 
-    .card .no-img {
-      width: 100%;
-      height: 180px;
-      background: #3b3b50;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #6c7086;
-      font-size: 2.5rem;
-    }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.6/purify.min.js" defer></script>
 
-    .card-body {
-      padding: 20px;
-    }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" defer></script>
 
-    .card-body h2 {
-      font-size: 1.2rem;
-      color: #f5f5f5;
-      margin-bottom: 8px;
-    }
-
-    .card-body p {
-      font-size: 0.9rem;
-      color: #a6adc8;
-      line-height: 1.5;
-      margin-bottom: 16px;
-    }
-
-    .card-body .read-more {
-      font-size: 0.85rem;
-      color: #89b4fa;
-      font-weight: 600;
-    }
-
-    /* Modal para ler o post completo */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .modal.active { display: flex; }
-
-    .modal-content {
-      background: #2a2a3e;
-      border-radius: 12px;
-      max-width: 700px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-      padding: 32px;
-      border: 1px solid #3b3b50;
-    }
-
-    .modal-content h2 {
-      color: #f5f5f5;
-      margin-bottom: 12px;
-    }
-
-    .modal-content img {
-      width: 100%;
-      border-radius: 8px;
-      margin-bottom: 16px;
-    }
-
-    .modal-content .desc {
-      color: #a6adc8;
-      margin-bottom: 20px;
-      font-style: italic;
-    }
-
-    .modal-content .body-text {
-      line-height: 1.7;
-      color: #cdd6f4;
-      white-space: pre-line;
-    }
-
-    .close-btn {
-      float: right;
-      background: none;
-      border: none;
-      color: #a6adc8;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    .close-btn:hover { color: #f5f5f5; }
-  </style>
+  <!-- JavaScript do projeto -->
+  <script src="assets/js/markdown.js" defer></script>
+  <script src="assets/js/github.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
 </head>
+
 <body>
 
-<h1>Meu Blog</h1>
-<div class="grid" id="posts"></div>
+  <header class="site-header">
+    <div class="header-container">
+      <a href="/webpage/" class="site-logo">Meu Blog Linux</a>
 
-<div class="modal" id="modal">
-  <div class="modal-content" id="modal-content"></div>
-</div>
+      <p class="site-subtitle">
+        Linux, infraestrutura e tecnologia
+      </p>
+    </div>
+  </header>
 
-<script>
-const BASE = '/webpage'; // Nome do seu repositório
-const repo = 'alexrodriguesp/webpage';
+  <main class="main-container">
 
-async function carregarPosts() {
-  try {
-    const resp = await fetch(`https://api.github.com/repos/${repo}/contents/_posts`);
-    const files = await resp.json();
-    const container = document.getElementById('posts');
-    container.innerHTML = '';
+    <section class="posts-section">
+      <div class="section-header">
+        <h1>Artigos</h1>
+        <p>Conteúdos técnicos e tutoriais sobre tecnologia.</p>
+      </div>
 
-    if (!Array.isArray(files)) {
-      container.innerHTML = '<p style="color:#f38ba8;">Erro ao carregar posts. Tente novamente.</p>';
-      return;
-    }
+      <div id="posts" class="posts-grid">
+        <p class="loading-message">Carregando artigos...</p>
+      </div>
+    </section>
 
-    for (const file of files) {
-      if (!file.name.endsWith('.md')) continue;
+  </main>
 
-      const content = await (await fetch(file.download_url)).text();
-      const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-      if (!match) continue;
+  <!-- Modal de leitura -->
+  <div class="modal" id="modal" aria-hidden="true">
 
-      const frontYaml = match[1];
-      const body = match[2];
+    <article
+      class="modal-content"
+      id="modal-content"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="article-title"
+    >
 
-      // Usando a biblioteca js-yaml para interpretar o cabeçalho de forma profissional
-      let data = {};
-      try {
-        data = jsyaml.load(frontYaml) || {};
-      } catch (e) {
-        console.error('Erro ao ler YAML do post:', file.name, e);
-      }
+      <!-- Conteúdo inserido pelo JavaScript -->
 
-      const titulo = data.title || '';
-      const desc = data.description || '';
-      let img = data.image || '';
+    </article>
 
-      // Tratamento do caminho da imagem para o GitHub Pages
-      if (img) {
-        if (!img.startsWith('http')) {
-          const cleanImgPath = img.replace(/^\/+/, '');
-          img = `${BASE}/${cleanImgPath}`;
-        }
-      }
+  </div>
 
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        ${img
-          ? `<img src="${img}" alt="${titulo}" onerror="this.outerHTML='<div class=no-img>📷</div>'">`
-          : `<div class="no-img">📷</div>`
-        }
-        <div class="card-body">
-          <h2>${titulo}</h2>
-          <p>${desc || 'Clique para ler mais...'}</p>
-          <span class="read-more">Ler mais →</span>
-        </div>
-      `;
-
-      card.onclick = () => abrirModal(titulo, desc, img, body);
-      container.appendChild(card);
-    }
-  } catch (err) {
-    console.error(err);
-    const container = document.getElementById('posts');
-    container.innerHTML = '<p style="color:#f38ba8;">Erro ao conectar com a API do GitHub.</p>';
-  }
-}
-
-function abrirModal(titulo, desc, img, body) {
-  const modal = document.getElementById('modal');
-  const content = document.getElementById('modal-content');
-  content.innerHTML = `
-    <button class="close-btn" onclick="fecharModal()">✕</button>
-    ${img ? `<img src="${img}" alt="${titulo}">` : ''}
-    <h2>${titulo}</h2>
-    ${desc ? `<p class="desc">${desc}</p>` : ''}
-    <div class="body-text">${body}</div>
-  `;
-  modal.classList.add('active');
-}
-
-function fecharModal() {
-  document.getElementById('modal').classList.remove('active');
-}
-
-document.getElementById('modal').onclick = (e) => {
-  if (e.target === e.currentTarget) fecharModal();
-};
-
-carregarPosts();
-</script>
+  <footer class="site-footer">
+    <p>Meu Blog Linux · Conteúdo sobre tecnologia e infraestrutura.</p>
+  </footer>
 
 </body>
 </html>
