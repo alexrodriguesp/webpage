@@ -1,3 +1,4 @@
+
 media:
   input: uploads
   output: /uploads
@@ -11,12 +12,23 @@ content:
       - name: title
         label: Título
         type: string
+
+      - name: date
+        label: Data
+        type: date
+
       - name: description
         label: Descrição
         type: text
+
+      - name: tags
+        label: Tags
+        type: string
+
       - name: image
         label: Imagem
         type: image
+
       - name: body
         label: Conteúdo
         type: markdown
